@@ -55,7 +55,6 @@ h1 {
 /* Rocket Wrapper */
 #rocket-wrapper {
   position: absolute;
-  /* At launch, we want the rocket to start at the bottom center */
   left: 50%;
   bottom: 0;
   width: 120px;
@@ -168,12 +167,13 @@ h1 {
   background: red;
 }
 
-/* Buttons (centered normally) */
+/* Button Container */
 #button-container {
   text-align: center;
   margin: 10px 0;
 }
 
+/* Buttons */
 button {
   padding: 10px 20px;
   font-size: 1em;
@@ -239,7 +239,7 @@ button:disabled {
   font-size: 0.9em;
 }
 
-/* Risk Color & Pulse Animation */
+/* Risk Colors & Pulse */
 .low-risk {
   color: #90ee90;
   animation: pulse 1s infinite;
