@@ -2,49 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Space Quest Adventures Discount Game</title>
-  <!-- Using Open Sans for readability -->
+  <title>Rocket Discount Game</title>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div id="game-container">
-    <h1>Space Quest Adventures Discount Game</h1>
+    <h1>Rocket Discount Game</h1>
     
-    <!-- Countdown display -->
-    <div id="countdown">5</div>
-    
-    <!-- Rocket Container -->
+    <!-- Display area for the rocket and discount -->
     <div id="rocket-container">
       <div id="rocket-wrapper">
         <img id="rocket" src="img/rocket4.png" alt="Rocket">
-        <!-- The displayed discount (bet) starts at 0.00% -->
-        <div id="ship-discount">0.00% Discount</div>
+        <div id="ship-discount">1.00% Discount</div>
       </div>
-      <img id="explosion" src="img/explosion.png" alt="Explosion">
-      <div id="bottom-scale"></div>
-      <div id="vertical-ticker"></div>
     </div>
     
-    <div id="status">Waiting for round...</div>
+    <!-- Status message -->
+    <div id="status">Press Blast Off to start!</div>
     
-    <!-- Buttons Container (centered in normal flow) -->
+    <!-- Buttons -->
     <div id="button-container">
-      <button id="ignite">Blast Off</button>
-      <button id="cashout" disabled>Cash Out</button>
+      <button id="blastOff">Blast Off</button>
+      <button id="cashOut" disabled>Cash Out</button>
     </div>
     
-    <!-- Bottom Info -->
+    <!-- Info display -->
     <div id="bottom-info">
-      <div id="discount-display">Total Discount: 0.00%</div>
-      <div id="current-discount">Current: 0.00%</div>
+      <div id="current">Current Discount: 1.00%</div>
+      <div id="total">Total Discount Won: 0.00%</div>
     </div>
   </div>
   
-  <!-- Leaderboard (fixed in top-right corner) -->
+  <!-- Leaderboard (fixed in top-right) -->
   <div id="leaderboard">High Score: 0.00%</div>
   
-  <!-- Sound Bar (fixed in bottom-right corner) -->
+  <!-- Sound Bar (fixed in bottom-right) -->
   <div id="sound-bar">
     <h3>Sound Bar</h3>
     <label for="bg-volume">Background Music:</label>
