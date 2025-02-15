@@ -18,8 +18,8 @@ const cashoutVolumeSlider = document.getElementById("cashout-volume");
 // -------------------- Dynamic Scale Function --------------------
 // This function maps an actual percentage (0 to 20) to a screen fraction (0 to 1)
 // so that the current discount is always centered (mapped to 0.5).
-// For x <= discount: f(x) = 0.5 * (x / discount)  (if discount > 0; else linear)
-// For x > discount: f(x) = 0.5 + 0.5 * ((x - discount) / (20 - discount))
+// For x <= current discount: f(x) = 0.5 * (x / discount)
+// For x > current discount: f(x) = 0.5 + 0.5 * ((x - discount) / (20 - discount))
 function dynamicScale(x) {
   if (discount <= 0) return x / 20; // fallback if discount is 0
   if (x <= discount) {
@@ -64,7 +64,7 @@ function updateRocketPosition() {
   const wrapperHeight = rocketWrapper.offsetHeight;
   let centerX = (containerWidth - wrapperWidth) / 2;
   let centerY = (containerHeight - wrapperHeight) / 2;
-  // Use linear mapping: the rocket's progress is (discount/20)
+  // Use linear mapping: progress = discount / 20
   let t = discount / 20;
   rocketWrapper.style.left = (t * centerX) + "px";
   rocketWrapper.style.bottom = (t * centerY) + "px";
@@ -74,10 +74,8 @@ function updateBottomScale() {
   const bottomScale = document.getElementById("bottom-scale");
   bottomScale.innerHTML = "";
   const containerWidth = document.getElementById("rocket-container").offsetWidth;
-  // We'll use fixed tick values: 0, 5, 10, 15, 20
   const ticks = [0, 5, 10, 15, 20];
   ticks.forEach(tickValue => {
-    // Use dynamicScale to get a non-linear mapping
     let frac = dynamicScale(tickValue);
     let leftPos = frac * containerWidth;
     const tick = document.createElement("div");
@@ -157,9 +155,9 @@ function updateDiscount() {
   if (discount > 20) discount = 20;
   
   // Determine per-tick explosion probability:
-  // For discount 0%-5%: overall chance 80% over 500 ticks (approx) → per-tick probability ≈ 0.00402
-  // For discount 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
-  // For discount 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
+  // For discount 0%-5%: overall chance 80% over ~500 ticks → per-tick probability ≈ 0.00402
+  // For discount 5%-10%: overall chance 8% over ~500 ticks → per-tick probability ≈ 0.0001667
+  // For discount 10%-20%: overall chance 2% over ~1000 ticks → per-tick probability ≈ 0.0000202
   let explosionProb = 0;
   if (discount >= 0 && discount < 5) {
     explosionProb = 0.00402;
@@ -221,7 +219,7 @@ function crash() {
   clearInterval(gameInterval);
   clearInterval(tickTimer);
   
-  // If the player had clicked Blast off (playerJoined true), lose both current discount and total discount.
+  // If the player had clicked Blast off, then on crash both current and total discount are lost
   if (playerJoined) {
     discount = 0;
     accumulatedDiscount = 0;
@@ -269,6 +267,7 @@ function cashOut() {
   
   // Only add current discount to total if the player clicked Blast off during the countdown
   accumulatedDiscount += discount;
+  updateAccumulatedDiscount();
   updateUI();
   updateLeaderboard();
   showShareOptions();
@@ -296,7 +295,7 @@ function startCountdown() {
     } else {
       clearInterval(countdownInterval);
       countdownDiv.style.display = "none";
-      // At the end of the countdown, start the run regardless.
+      // At the end of the countdown, start the run.
       // (Cash out will be available only if the player clicked Blast off during the countdown.)
       startRun();
     }
@@ -346,5 +345,4 @@ cashoutVolumeSlider.addEventListener("input", () => {
 
 // Reusable update for accumulated discount display
 function updateAccumulatedDiscount() {
-  document.getElementById("discount-display").textContent = "Total Discount: " + accumulatedDiscount.toFixed(2) + "%";
-}
+  document.getElementById("discount-
