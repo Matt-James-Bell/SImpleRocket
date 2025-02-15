@@ -11,11 +11,14 @@
   <div id="game-container">
     <h1>Space Quest Adventures Discount Game</h1>
     
+    <!-- Countdown display -->
+    <div id="countdown">5</div>
+    
     <!-- Rocket Container -->
     <div id="rocket-container">
       <div id="rocket-wrapper">
         <img id="rocket" src="img/rocket4.png" alt="Rocket">
-        <!-- Displayed discount starts at 0.00% -->
+        <!-- The displayed discount (bet) starts at 0.00% -->
         <div id="ship-discount">0.00% Discount</div>
       </div>
       <img id="explosion" src="img/explosion.png" alt="Explosion">
@@ -23,9 +26,9 @@
       <div id="vertical-ticker"></div>
     </div>
     
-    <div id="status">Press Blast Off to start the round</div>
+    <div id="status">Waiting for round...</div>
     
-    <!-- Buttons Container (centered) -->
+    <!-- Buttons Container (centered in normal flow) -->
     <div id="button-container">
       <button id="ignite">Blast Off</button>
       <button id="cashout" disabled>Cash Out</button>
@@ -38,10 +41,10 @@
     </div>
   </div>
   
-  <!-- Leaderboard (fixed in the top-right corner) -->
+  <!-- Leaderboard (fixed in top-right corner) -->
   <div id="leaderboard">High Score: 0.00%</div>
   
-  <!-- Sound Bar (fixed in the bottom-right corner) -->
+  <!-- Sound Bar (fixed in bottom-right corner) -->
   <div id="sound-bar">
     <h3>Sound Bar</h3>
     <label for="bg-volume">Background Music:</label>
