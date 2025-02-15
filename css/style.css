@@ -9,14 +9,6 @@ body {
   padding: 20px;
 }
 
-/* Main layout: Game container on left, Sidebar on right */
-#main-content {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 20px;
-}
-
 /* Game Container */
 #game-container {
   background: rgba(0,0,0,0.5);
@@ -25,16 +17,29 @@ body {
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.8);
   max-width: 800px;
+  margin: 0 auto;
   position: relative;
 }
 
-/* Sidebar */
-#sidebar {
-  width: 250px;
-  background: rgba(0,0,0,0.6);
+/* Leaderboard & Share Area */
+#leaderboard {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.8);
   padding: 10px;
   border-radius: 8px;
-  height: fit-content;
+  font-size: 1.2em;
+  color: #fff;
+}
+#share-area {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  background: rgba(0,0,0,0.8);
+  padding: 10px;
+  border-radius: 8px;
+  color: #fff;
 }
 
 /* Countdown Display */
@@ -290,14 +295,4 @@ button:disabled {
   0% { transform: scale(1); }
   50% { transform: scale(1.1); }
   100% { transform: scale(1); }
-}
-
-/* Leaderboard & Share Area */
-#leaderboard {
-  margin-top: 10px;
-  font-size: 1.2em;
-  color: #fff;
-}
-#share-area {
-  margin-top: 10px;
 }
