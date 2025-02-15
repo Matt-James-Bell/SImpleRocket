@@ -30,7 +30,7 @@ h1 {
   position: relative;
 }
 
-/* Countdown Display (changed to white) */
+/* Countdown Display */
 #countdown {
   position: absolute;
   top: 50%;
@@ -251,7 +251,7 @@ button:disabled {
   z-index: 2;
 }
 
-/* Sound Bar Control Panel (always visible) */
+/* Sound Bar Control Panel */
 #sound-bar {
   position: fixed;
   bottom: 20px;
@@ -265,11 +265,32 @@ button:disabled {
   font-size: 0.9em;
 }
 
-/* Stats Display */
-#stats-display {
-  margin-top: 20px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.7);
-  border-radius: 4px;
+/* Risk Color Classes & Pulse Animation */
+.low-risk {
+  color: #90ee90;
+  animation: pulse 1s infinite;
+}
+.mid-risk {
+  color: yellow;
+  animation: pulse 1s infinite;
+}
+.high-risk {
+  color: red;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Leaderboard & Share Area */
+#leaderboard {
+  margin-top: 10px;
+  font-size: 1.2em;
   color: #fff;
+}
+#share-area {
+  margin-top: 10px;
 }
