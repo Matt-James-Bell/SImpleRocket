@@ -141,9 +141,9 @@ function updateDiscount() {
   if (discount > 20) discount = 20;
   
   // Determine per-tick explosion probability:
-  // For discount 1%-5%: overall chance 80% over 400 ticks → per-tick probability ≈ 0.00402
-  // For discount 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
-  // For discount 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
+  // 1%-5%: overall chance 80% over 400 ticks → per-tick probability ≈ 0.00402
+  // 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
+  // 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
   let explosionProb = 0;
   if (discount >= 1 && discount < 5) {
     explosionProb = 0.00402;
@@ -172,10 +172,10 @@ function startGame() {
   crashed = false;
   gameActive = true;
   updateUI();
-  document.getElementById("status").textContent = "Run in progress... " +
-    (playerJoined ? "Hit Cash Out to lock in your discount!" : "No cash out available.");
+  document.getElementById("status").textContent =
+    "Run in progress..." + (playerJoined ? " Hit Cash Out to lock in your discount!" : " (No cash out available)");
   
-  // Enable cash out only if player pressed Blast off
+  // Cash out is available only if the player hit Blast off during the countdown
   if (playerJoined) {
     document.getElementById("cashout").disabled = false;
   } else {
@@ -205,7 +205,7 @@ function crash() {
   clearInterval(gameInterval);
   clearInterval(tickTimer);
   
-  // Lose current discount and total discount on crash
+  // On crash, lose both current discount and total discount
   discount = 0;
   accumulatedDiscount = 0;
   
@@ -231,6 +231,7 @@ function crash() {
 }
 
 function cashOut() {
+  // Cash out only works if the player hit Blast off during the countdown
   if (!gameActive || crashed || !playerJoined) return;
   gameActive = false;
   clearInterval(gameInterval);
@@ -248,6 +249,7 @@ function cashOut() {
   document.getElementById("cashout").disabled = true;
   document.getElementById("ignite").disabled = true;
   
+  // Only add current discount to total if the player had hit Blast off
   accumulatedDiscount += discount;
   updateUI();
   updateLeaderboard();
@@ -264,7 +266,7 @@ function startCountdown() {
   
   playerJoined = false;
   const countdownDiv = document.getElementById("countdown");
-  let duration = 5; // 5-second countdown
+  let duration = 5;
   countdownDiv.style.display = "block";
   countdownDiv.textContent = duration;
   document.getElementById("ignite").disabled = false;
@@ -276,7 +278,8 @@ function startCountdown() {
     } else {
       clearInterval(countdownInterval);
       countdownDiv.style.display = "none";
-      // At the end of the countdown, start the run regardless
+      // At the end of the countdown, start the run regardless.
+      // (Cash out will only be available if the player pressed Blast off during the countdown.)
       startRun();
     }
   }, 1000);
