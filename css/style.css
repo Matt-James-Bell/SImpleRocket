@@ -264,3 +264,12 @@ button:disabled {
   color: #fff;
   font-size: 0.9em;
 }
+
+/* Stats Display */
+#stats-display {
+  margin-top: 20px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+  color: #fff;
+}
