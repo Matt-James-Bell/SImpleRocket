@@ -294,3 +294,21 @@ button:disabled {
 #share-area {
   margin-top: 10px;
 }
+
+/* Admin Login Area */
+#admin-login {
+  margin-top: 10px;
+}
+#admin-login input {
+  padding: 5px;
+  font-size: 1em;
+}
+#admin-login button {
+  padding: 5px 10px;
+  font-size: 1em;
+  margin-left: 5px;
+}
+#admin-message {
+  margin-left: 10px;
+  font-weight: bold;
+}
