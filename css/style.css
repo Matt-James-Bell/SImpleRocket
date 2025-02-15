@@ -21,7 +21,7 @@ body {
   position: relative;
 }
 
-/* Leaderboard & Share Area */
+/* Leaderboard & Share Area (fixed in the top right corner) */
 #leaderboard {
   position: fixed;
   top: 20px;
@@ -180,10 +180,12 @@ body {
 
 /* Buttons and Info */
 #button-container {
-  display: inline-flex;
-  justify-content: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
   gap: 10px;
-  margin: 10px 0;
 }
 #bottom-info {
   display: flex;
