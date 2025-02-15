@@ -10,9 +10,8 @@ body {
 }
 
 h1 {
-  text-align: center;
-  color: #fff;
   margin-bottom: 20px;
+  color: #fff;
 }
 
 /* Game Container */
@@ -21,63 +20,42 @@ h1 {
   border: 2px solid rgba(255,255,255,0.3);
   padding: 20px;
   border-radius: 12px;
-  max-width: 800px;
+  max-width: 400px;
   margin: 0 auto;
   position: relative;
-}
-
-/* Leaderboard (fixed top-right) */
-#leaderboard {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: rgba(0,0,0,0.8);
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 1.2em;
-  color: #fff;
 }
 
 /* Rocket Container */
 #rocket-container {
   position: relative;
   width: 100%;
-  height: 400px;
-  margin-bottom: 20px;
-  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../img/space6.jpg') no-repeat center;
+  height: 300px;
+  background: url('../img/space6.jpg') no-repeat center;
   background-size: cover;
-  border: 2px solid rgba(255,255,255,0.3);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
+  margin-bottom: 10px;
 }
 
 /* Rocket Wrapper */
-/* The rocket starts all the way left and will move to the center as discount increases */
 #rocket-wrapper {
   position: absolute;
-  left: 0;
+  left: 0;           /* Start at left edge */
   bottom: 0;
-  width: 120px;
-  height: 160px;
-  transition: left 0.2s ease;
+  width: 100px;
+  height: 140px;
+  transition: left 0.05s linear, bottom 0.05s linear;
 }
 
 /* Rocket Image */
 #rocket {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  z-index: 3;
-  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.7));
+  width: 100%;
 }
 
 /* Discount Display on Rocket */
 #ship-discount {
   position: absolute;
-  bottom: 75%;
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   font-size: 1em;
@@ -85,110 +63,33 @@ h1 {
   text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
 }
 
-/* Explosion Image */
-#explosion {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: 120px;
-  transform: translateX(-50%);
-  display: none;
-  z-index: 4;
-}
-
-/* Dynamic Horizontal Tick Bar */
-#bottom-scale {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 30px;
-  border-top: 1px solid #fff;
-  background: rgba(0,0,0,0.4);
-}
-
-/* Dynamic Vertical Tick Bar */
-#vertical-ticker {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 40px;
-  height: 100%;
-  border-left: 1px solid #fff;
-  background: rgba(0,0,0,0.4);
-}
-
-/* Tick Marks & Labels (Horizontal) */
-.tick {
-  position: absolute;
-  bottom: 0;
-  width: 1px;
-  height: 10px;
-  background: #fff;
-}
-
-.tick-label {
-  position: absolute;
-  bottom: 10px;
-  font-size: 10px;
-  color: #fff;
-}
-
-/* Tick Marker */
-.tick-marker {
-  position: absolute;
-  bottom: 0;
-  width: 2px;
-  height: 30px;
-  background: red;
-}
-
-/* Tick Marks & Labels (Vertical) */
-.v-tick {
-  position: absolute;
-  left: 0;
-  width: 8px;
-  height: 1px;
-  background: #fff;
-}
-
-.v-tick-label {
-  position: absolute;
-  left: 10px;
-  font-size: 10px;
-  color: #fff;
-}
-
-.v-tick-marker {
-  position: absolute;
-  left: 0;
-  width: 40px;
-  height: 2px;
-  background: red;
+/* Status */
+#status {
+  font-size: 1.2em;
+  margin: 10px 0;
 }
 
 /* Button Container */
 #button-container {
-  text-align: center;
   margin: 10px 0;
 }
 
 button {
   padding: 10px 20px;
   font-size: 1em;
+  margin: 5px;
   border: none;
   border-radius: 5px;
-  margin: 0 5px;
   cursor: pointer;
   transition: 0.3s;
 }
 
-#ignite {
+#blastOff {
   background: #ff3b3f;
   color: #fff;
 }
 
-#cashout {
+#cashOut {
   background: #00c851;
   color: #fff;
 }
@@ -202,31 +103,28 @@ button:disabled {
 #bottom-info {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-top: 10px;
+  font-size: 1.2em;
 }
 
-#discount-display, #current-discount {
-  font-size: 1.2em;
+#current, #total {
   background: rgba(0,0,0,0.7);
   padding: 5px 10px;
   border-radius: 4px;
 }
 
-#current-discount {
-  background: #000;
-  color: #90ee90;
-  border: 1px solid #90ee90;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-}
-
-#status {
+/* Leaderboard (fixed in top-right) */
+#leaderboard {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.8);
+  padding: 10px;
+  border-radius: 8px;
   font-size: 1.2em;
-  margin: 10px 0 20px;
-  color: #ddd;
 }
 
-/* Sound Bar */
+/* Sound Bar (fixed in bottom-right) */
 #sound-bar {
   position: fixed;
   bottom: 20px;
@@ -234,28 +132,6 @@ button:disabled {
   background: #333;
   padding: 10px;
   border-radius: 4px;
-  color: #fff;
   font-size: 0.9em;
-}
-
-/* Risk Colors & Pulse Animation */
-.low-risk {
-  color: #90ee90;
-  animation: pulse 1s infinite;
-}
-
-.mid-risk {
-  color: yellow;
-  animation: pulse 1s infinite;
-}
-
-.high-risk {
-  color: red;
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  color: #fff;
 }
