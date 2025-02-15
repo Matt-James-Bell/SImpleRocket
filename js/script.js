@@ -173,9 +173,10 @@ function startGame() {
   gameActive = true;
   updateUI();
   document.getElementById("status").textContent =
-    "Run in progress..." + (playerJoined ? " Hit Cash Out to lock in your discount!" : " (No cash out available)");
+    "Run in progress..." +
+    (playerJoined ? " Hit Cash Out to lock in your discount!" : " (No Cash Out available)");
   
-  // Cash out is available only if the player hit Blast off during the countdown
+  // Cash out is enabled only if the player clicked Blast off during the countdown
   if (playerJoined) {
     document.getElementById("cashout").disabled = false;
   } else {
@@ -249,7 +250,7 @@ function cashOut() {
   document.getElementById("cashout").disabled = true;
   document.getElementById("ignite").disabled = true;
   
-  // Only add current discount to total if the player had hit Blast off
+  // Only add current discount to total if the player clicked Blast off in this run
   accumulatedDiscount += discount;
   updateUI();
   updateLeaderboard();
@@ -279,7 +280,7 @@ function startCountdown() {
       clearInterval(countdownInterval);
       countdownDiv.style.display = "none";
       // At the end of the countdown, start the run regardless.
-      // (Cash out will only be available if the player pressed Blast off during the countdown.)
+      // (Cash out will only be available if the player clicked Blast off during the countdown.)
       startRun();
     }
   }, 1000);
