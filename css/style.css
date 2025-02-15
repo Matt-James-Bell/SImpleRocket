@@ -180,9 +180,7 @@ body {
 
 /* Buttons and Info */
 #button-container {
-  display: inline-flex;
-  justify-content: center;
-  gap: 10px;
+  text-align: center;
   margin: 10px 0;
 }
 #bottom-info {
