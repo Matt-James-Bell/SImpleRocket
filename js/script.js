@@ -132,10 +132,6 @@ function showShareOptions() {
     '<button onclick="alert(\'Shared on Facebook!\')">Facebook</button>';
 }
 
-function updateAccumulatedDiscount() {
-  document.getElementById("discount-display").textContent = "Total Discount: " + accumulatedDiscount.toFixed(2) + "%";
-}
-
 // -------------------- Game Mechanics --------------------
 
 // Increase discount by 0.01% per tick and check explosion chance based on current discount range
@@ -209,7 +205,7 @@ function crash() {
   clearInterval(gameInterval);
   clearInterval(tickTimer);
   
-  // On crash, lose current discount and total discount
+  // On crash, lose both current discount and total discount
   discount = 0;
   accumulatedDiscount = 0;
   
@@ -253,6 +249,7 @@ function cashOut() {
   document.getElementById("cashout").disabled = true;
   document.getElementById("ignite").disabled = true;
   
+  // Only add current discount to total if the player clicked Blast off during the countdown
   accumulatedDiscount += discount;
   updateAccumulatedDiscount();
   updateUI();
