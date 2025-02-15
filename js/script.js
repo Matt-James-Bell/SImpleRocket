@@ -1,12 +1,12 @@
 // Global variables
-let discount = 0.00; // Game now starts at 0%
+let discount = 0.00; // Game starts at 0%
 const tickInterval = 50; // milliseconds per tick
 let tickTimer = null;
 let gameInterval; // For UI updates
 let gameActive = false;
 let crashed = false;
 let accumulatedDiscount = 0;
-let playerJoined = false;
+let playerJoined = false; // True if player clicked Blast off during countdown
 let countdownInterval;
 let firstRun = true; // First run: 5 sec; subsequent: 5 sec
 
@@ -16,10 +16,7 @@ const sfxVolumeSlider = document.getElementById("sfx-volume");
 const cashoutVolumeSlider = document.getElementById("cashout-volume");
 
 // -------------------- Dynamic Scale Function --------------------
-// This function maps an actual percentage (0 to 20) to a screen fraction (0 to 1)
-// so that the current discount is always centered (mapped to 0.5).
-// For x <= current discount: f(x) = 0.5 * (x / discount)
-// For x > current discount: f(x) = 0.5 + 0.5 * ((x - discount) / (20 - discount))
+// Maps a value between 0 and 20 to a fraction 0-1 so that the current discount is centered at 0.5.
 function dynamicScale(x) {
   if (discount <= 0) return x / 20; // fallback if discount is 0
   if (x <= discount) {
@@ -64,7 +61,7 @@ function updateRocketPosition() {
   const wrapperHeight = rocketWrapper.offsetHeight;
   let centerX = (containerWidth - wrapperWidth) / 2;
   let centerY = (containerHeight - wrapperHeight) / 2;
-  // Use linear mapping: progress = discount / 20
+  // Linear mapping: progress = discount/20
   let t = discount / 20;
   rocketWrapper.style.left = (t * centerX) + "px";
   rocketWrapper.style.bottom = (t * centerY) + "px";
@@ -148,16 +145,16 @@ function showShareOptions() {
 
 // -------------------- Game Mechanics --------------------
 
-// Increase discount by 0.01% per tick and check explosion chance based on current discount range
+// Increase discount by 0.01% per tick and check explosion chance
 function updateDiscount() {
   if (!gameActive) return;
   discount += 0.01;
   if (discount > 20) discount = 20;
   
   // Determine per-tick explosion probability:
-  // For discount 0%-5%: overall chance 80% over ~500 ticks → per-tick probability ≈ 0.00402
-  // For discount 5%-10%: overall chance 8% over ~500 ticks → per-tick probability ≈ 0.0001667
-  // For discount 10%-20%: overall chance 2% over ~1000 ticks → per-tick probability ≈ 0.0000202
+  // 0%-5%: overall chance ~80% over ~500 ticks → per-tick probability ≈ 0.00402
+  // 5%-10%: overall chance ~8% over ~500 ticks → per-tick probability ≈ 0.0001667
+  // 10%-20%: overall chance ~2% over ~1000 ticks → per-tick probability ≈ 0.0000202
   let explosionProb = 0;
   if (discount >= 0 && discount < 5) {
     explosionProb = 0.00402;
@@ -181,13 +178,13 @@ function updateGame() {
 }
 
 function startGame() {
-  // Reset discount to 0.00%
+  // Start at 0.00%
   discount = 0.00;
   crashed = false;
   gameActive = true;
   updateUI();
   document.getElementById("status").textContent =
-    "Run in progress..." + (playerJoined ? " Hit Cash Out to lock in your discount!" : " (No Cash Out available)");
+    "Run in progress..." + (playerJoined ? " Hit Cash Out to double your bet!" : " (No Cash Out available)");
   
   // Enable Cash Out only if the player clicked Blast off during the countdown
   if (playerJoined) {
@@ -219,7 +216,7 @@ function crash() {
   clearInterval(gameInterval);
   clearInterval(tickTimer);
   
-  // If the player had clicked Blast off, then on crash both current and total discount are lost
+  // Only if the player had clicked Blast off, lose current and total discount
   if (playerJoined) {
     discount = 0;
     accumulatedDiscount = 0;
@@ -247,7 +244,7 @@ function crash() {
 }
 
 function cashOut() {
-  // Cash out works only if the player clicked Blast off during the countdown
+  // Cash out works only if player hit Blast off during the countdown
   if (!gameActive || crashed || !playerJoined) return;
   gameActive = false;
   clearInterval(gameInterval);
@@ -261,12 +258,14 @@ function cashOut() {
   rocketSound.pause();
   rocketSound.currentTime = 0;
   
-  document.getElementById("status").textContent = "Cashed out at " + discount.toFixed(2) + "% discount!";
+  document.getElementById("status").textContent = "Cashed out at " + discount.toFixed(2) + "%!";
   document.getElementById("cashout").disabled = true;
   document.getElementById("ignite").disabled = true;
   
-  // Only add current discount to total if the player clicked Blast off during the countdown
-  accumulatedDiscount += discount;
+  // Only if the player hit Blast off do we double the bet
+  if (playerJoined) {
+    accumulatedDiscount += discount;
+  }
   updateAccumulatedDiscount();
   updateUI();
   updateLeaderboard();
@@ -296,7 +295,7 @@ function startCountdown() {
       clearInterval(countdownInterval);
       countdownDiv.style.display = "none";
       // At the end of the countdown, start the run.
-      // (Cash out will be available only if the player clicked Blast off during the countdown.)
+      // (Cash Out will only be available if the player clicked Blast off during the countdown.)
       startRun();
     }
   }, 1000);
@@ -345,4 +344,5 @@ cashoutVolumeSlider.addEventListener("input", () => {
 
 // Reusable update for accumulated discount display
 function updateAccumulatedDiscount() {
-  document.getElementById("discount-
+  document.getElementById("discount-display").textContent = "Total Discount: " + accumulatedDiscount.toFixed(2) + "%";
+}
