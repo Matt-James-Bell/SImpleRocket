@@ -55,12 +55,12 @@ h1 {
 /* Rocket Wrapper */
 #rocket-wrapper {
   position: absolute;
-  left: 50%;
+  left: 0; /* Start at the left edge */
   bottom: 0;
   width: 120px;
   height: 160px;
-  transform: translateX(-50%);
-  transition: left 0.2s ease, bottom 0.2s ease;
+  /* The horizontal position will update from left edge to center */
+  transition: left 0.2s ease;
 }
 
 /* Rocket Image */
@@ -239,7 +239,7 @@ button:disabled {
   font-size: 0.9em;
 }
 
-/* Risk Colors & Pulse */
+/* Risk Colors & Pulse Animation */
 .low-risk {
   color: #90ee90;
   animation: pulse 1s infinite;
