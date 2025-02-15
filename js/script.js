@@ -1,5 +1,5 @@
 // Global variables
-let discount = 1.00; // Game starts at 1%
+let discount = 0.00; // Game now starts at 0%
 const tickInterval = 50; // milliseconds per tick
 let tickTimer = null;
 let gameInterval; // For UI updates
@@ -15,6 +15,20 @@ const bgVolumeSlider = document.getElementById("bg-volume");
 const sfxVolumeSlider = document.getElementById("sfx-volume");
 const cashoutVolumeSlider = document.getElementById("cashout-volume");
 
+// -------------------- Dynamic Scale Function --------------------
+// This function maps an actual percentage (0 to 20) to a screen fraction (0 to 1)
+// so that the current discount is always centered (mapped to 0.5).
+// For x <= discount: f(x) = 0.5 * (x / discount)  (if discount > 0; else linear)
+// For x > discount: f(x) = 0.5 + 0.5 * ((x - discount) / (20 - discount))
+function dynamicScale(x) {
+  if (discount <= 0) return x / 20; // fallback if discount is 0
+  if (x <= discount) {
+    return 0.5 * (x / discount);
+  } else {
+    return 0.5 + 0.5 * ((x - discount) / (20 - discount));
+  }
+}
+
 // -------------------- Utility Functions --------------------
 
 function updateDiscountDisplay() {
@@ -29,7 +43,7 @@ function updateDiscountDisplay() {
   shipElem.classList.remove("low-risk", "mid-risk", "high-risk");
   currentElem.classList.remove("low-risk", "mid-risk", "high-risk");
   
-  if (discount >= 1 && discount < 5) {
+  if (discount >= 0 && discount < 5) {
     shipElem.classList.add("low-risk");
     currentElem.classList.add("low-risk");
   } else if (discount >= 5 && discount < 10) {
@@ -50,7 +64,7 @@ function updateRocketPosition() {
   const wrapperHeight = rocketWrapper.offsetHeight;
   let centerX = (containerWidth - wrapperWidth) / 2;
   let centerY = (containerHeight - wrapperHeight) / 2;
-  // Position determined by fraction discount/20
+  // Use linear mapping: the rocket's progress is (discount/20)
   let t = discount / 20;
   rocketWrapper.style.left = (t * centerX) + "px";
   rocketWrapper.style.bottom = (t * centerY) + "px";
@@ -60,10 +74,12 @@ function updateBottomScale() {
   const bottomScale = document.getElementById("bottom-scale");
   bottomScale.innerHTML = "";
   const containerWidth = document.getElementById("rocket-container").offsetWidth;
+  // We'll use fixed tick values: 0, 5, 10, 15, 20
   const ticks = [0, 5, 10, 15, 20];
   ticks.forEach(tickValue => {
-    let normalizedTick = tickValue / 20;
-    let leftPos = normalizedTick * containerWidth;
+    // Use dynamicScale to get a non-linear mapping
+    let frac = dynamicScale(tickValue);
+    let leftPos = frac * containerWidth;
     const tick = document.createElement("div");
     tick.className = "tick";
     tick.style.left = leftPos + "px";
@@ -89,8 +105,8 @@ function updateVerticalTicker() {
   const containerHeight = container.offsetHeight;
   const ticks = [0, 5, 10, 15, 20];
   ticks.forEach(tickValue => {
-    let normalizedTick = tickValue / 20;
-    let topPos = (1 - normalizedTick) * containerHeight;
+    let frac = dynamicScale(tickValue);
+    let topPos = (1 - frac) * containerHeight;
     const tick = document.createElement("div");
     tick.className = "v-tick";
     tick.style.top = topPos + "px";
@@ -141,11 +157,11 @@ function updateDiscount() {
   if (discount > 20) discount = 20;
   
   // Determine per-tick explosion probability:
-  // For discount 1%-5%: overall chance 80% over 400 ticks → per-tick probability ≈ 0.00402
+  // For discount 0%-5%: overall chance 80% over 500 ticks (approx) → per-tick probability ≈ 0.00402
   // For discount 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
   // For discount 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
   let explosionProb = 0;
-  if (discount >= 1 && discount < 5) {
+  if (discount >= 0 && discount < 5) {
     explosionProb = 0.00402;
   } else if (discount >= 5 && discount < 10) {
     explosionProb = 0.0001667;
@@ -167,8 +183,8 @@ function updateGame() {
 }
 
 function startGame() {
-  // Reset discount to 1%
-  discount = 1.00;
+  // Reset discount to 0.00%
+  discount = 0.00;
   crashed = false;
   gameActive = true;
   updateUI();
@@ -205,7 +221,7 @@ function crash() {
   clearInterval(gameInterval);
   clearInterval(tickTimer);
   
-  // Only if the player had clicked Blast off (playerJoined true), lose discount:
+  // If the player had clicked Blast off (playerJoined true), lose both current discount and total discount.
   if (playerJoined) {
     discount = 0;
     accumulatedDiscount = 0;
@@ -233,7 +249,7 @@ function crash() {
 }
 
 function cashOut() {
-  // Cash out only works if the player clicked Blast off during the countdown
+  // Cash out works only if the player clicked Blast off during the countdown
   if (!gameActive || crashed || !playerJoined) return;
   gameActive = false;
   clearInterval(gameInterval);
@@ -251,8 +267,8 @@ function cashOut() {
   document.getElementById("cashout").disabled = true;
   document.getElementById("ignite").disabled = true;
   
+  // Only add current discount to total if the player clicked Blast off during the countdown
   accumulatedDiscount += discount;
-  updateAccumulatedDiscount();
   updateUI();
   updateLeaderboard();
   showShareOptions();
