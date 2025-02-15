@@ -55,10 +55,12 @@ h1 {
 /* Rocket Wrapper */
 #rocket-wrapper {
   position: absolute;
-  left: 0;
+  /* At launch, we want the rocket to start at the bottom center */
+  left: 50%;
   bottom: 0;
   width: 120px;
   height: 160px;
+  transform: translateX(-50%);
   transition: left 0.2s ease, bottom 0.2s ease;
 }
 
@@ -87,9 +89,10 @@ h1 {
 /* Explosion Image */
 #explosion {
   position: absolute;
-  left: 0;
+  left: 50%;
   bottom: 0;
   width: 120px;
+  transform: translateX(-50%);
   display: none;
   z-index: 4;
 }
@@ -165,7 +168,7 @@ h1 {
   background: red;
 }
 
-/* Button Container */
+/* Buttons (centered normally) */
 #button-container {
   text-align: center;
   margin: 10px 0;
