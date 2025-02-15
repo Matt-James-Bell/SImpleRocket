@@ -141,9 +141,9 @@ function updateDiscount() {
   if (discount > 20) discount = 20;
   
   // Determine per-tick explosion probability:
-  // 1%-5%: overall chance 80% over 400 ticks → per-tick probability ≈ 0.00402
-  // 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
-  // 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
+  // For discount 1%-5%: overall chance 80% over 400 ticks → per-tick probability ≈ 0.00402
+  // For discount 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
+  // For discount 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
   let explosionProb = 0;
   if (discount >= 1 && discount < 5) {
     explosionProb = 0.00402;
@@ -205,9 +205,11 @@ function crash() {
   clearInterval(gameInterval);
   clearInterval(tickTimer);
   
-  // On crash, lose both current discount and total discount
-  discount = 0;
-  accumulatedDiscount = 0;
+  // Only if the player had clicked Blast off (playerJoined true), lose discount:
+  if (playerJoined) {
+    discount = 0;
+    accumulatedDiscount = 0;
+  }
   
   const rocketSound = document.getElementById("rocket-sound");
   rocketSound.pause();
@@ -231,7 +233,7 @@ function crash() {
 }
 
 function cashOut() {
-  // Cash out works only if the player clicked Blast off during the countdown
+  // Cash out only works if the player clicked Blast off during the countdown
   if (!gameActive || crashed || !playerJoined) return;
   gameActive = false;
   clearInterval(gameInterval);
@@ -249,7 +251,6 @@ function cashOut() {
   document.getElementById("cashout").disabled = true;
   document.getElementById("ignite").disabled = true;
   
-  // Only add current discount to total if the player clicked Blast off during the countdown
   accumulatedDiscount += discount;
   updateAccumulatedDiscount();
   updateUI();
