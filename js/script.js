@@ -1,57 +1,80 @@
 let discount = 1.00;
-const maxDiscount = 20.00;
+let totalDiscount = 0.00;
 let gameActive = false;
 let crashed = false;
-let accumulatedDiscount = 0;
 let playerJoined = false;
+let countdownInterval;
+let gameInterval;
 
-function startGame() {
-  discount = 1.00;
-  crashed = false;
-  gameActive = true;
-  document.getElementById("status").textContent = "Run in progress...";
+function startCountdown() {
+    let count = 5;
+    document.getElementById("countdown").textContent = count;
+    countdownInterval = setInterval(() => {
+        count--;
+        document.getElementById("countdown").textContent = count;
+        if (count === 0) {
+            clearInterval(countdownInterval);
+            startRun();
+        }
+    }, 1000);
+}
 
-  if (playerJoined) {
-    document.getElementById("cashout").disabled = false;
-  } else {
-    document.getElementById("cashout").disabled = true;
-  }
+function startRun() {
+    document.getElementById("ignite").disabled = true;
+    gameActive = true;
+    crashed = false;
+    discount = 1.00;
+    updateDisplay();
 
-  let crashPoint = getRandomCrashPoint();
-  let gameInterval = setInterval(() => {
-    if (!gameActive) return;
-    discount += 0.01;
-    document.getElementById("current-discount").textContent = "Current: " + discount.toFixed(2) + "%";
+    gameInterval = setInterval(() => {
+        if (!gameActive) return;
+        discount += 0.01;
+        if (discount >= 20.00) discount = 20.00;
 
-    if (discount >= crashPoint) {
-      crash(gameInterval);
+        let explodeChance = Math.random();
+        if (
+            (discount < 5 && explodeChance < 0.8) ||
+            (discount < 10 && explodeChance < 0.08) ||
+            (discount < 20 && explodeChance < 0.02)
+        ) {
+            crash();
+        }
+
+        updateDisplay();
+    }, 50);
+}
+
+function crash() {
+    gameActive = false;
+    crashed = true;
+    clearInterval(gameInterval);
+
+    if (playerJoined) {
+        totalDiscount = 0.00;
     }
-  }, 50);
-}
 
-function getRandomCrashPoint() {
-  let r = Math.random();
-  if (r < 0.8) return Math.random() * (5.00 - 1.00) + 1.00;
-  if (r < 0.9) return Math.random() * (0.02 - 0.01) + 0.01;
-  if (r < 0.98) return Math.random() * (10.00 - 5.00) + 5.00;
-  return Math.random() * (20.00 - 10.00) + 10.00;
-}
-
-function crash(interval) {
-  gameActive = false;
-  crashed = true;
-  clearInterval(interval);
-  document.getElementById("status").textContent = "Rocket Exploded!";
-  if (playerJoined) accumulatedDiscount = 0;
+    document.getElementById("status").textContent = "Crashed! Discount lost.";
+    startCountdown();
 }
 
 function cashOut() {
-  if (!gameActive || crashed || !playerJoined) return;
-  gameActive = false;
-  accumulatedDiscount += discount;
-  document.getElementById("discount-display").textContent = "Total Discount: " + accumulatedDiscount.toFixed(2) + "%";
-  document.getElementById("status").textContent = "Cashed out!";
+    if (!gameActive || crashed || !playerJoined) return;
+    gameActive = false;
+    totalDiscount += discount;
+    document.getElementById("status").textContent = "Cashed Out!";
+    updateDisplay();
+    startCountdown();
 }
 
-document.getElementById("ignite").addEventListener("click", () => { playerJoined = true; startGame(); });
+function updateDisplay() {
+    document.getElementById("ship-discount").textContent = discount.toFixed(2) + "%";
+    document.getElementById("discount-display").textContent = "Total Discount: " + totalDiscount.toFixed(2) + "%";
+}
+
+document.getElementById("ignite").addEventListener("click", () => {
+    playerJoined = true;
+});
+
 document.getElementById("cashout").addEventListener("click", cashOut);
+
+startCountdown();
