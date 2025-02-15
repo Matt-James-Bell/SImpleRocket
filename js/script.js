@@ -1,11 +1,10 @@
 // Global variables
-let discount = 0.00; // This will be set to 1% at game start
-const doublingInterval = 3000; // Interval (ms) for discount doubling
-let doublingTimer = null;
+let discount = 1.00; // Game now starts at 1%
+const tickInterval = 50; // milliseconds per tick
+let tickTimer = null;
 let gameInterval; // For UI updates
 let gameActive = false;
 let crashed = false;
-let startTime;
 let accumulatedDiscount = 0;
 let playerJoined = false;
 let countdownInterval;
@@ -33,13 +32,13 @@ function updateDiscountDisplay() {
   shipElem.classList.remove("low-risk", "mid-risk", "high-risk");
   currentElem.classList.remove("low-risk", "mid-risk", "high-risk");
   
-  if (discount <= 5) {
+  if (discount >= 1 && discount < 5) {
     shipElem.classList.add("low-risk");
     currentElem.classList.add("low-risk");
-  } else if (discount <= 10) {
+  } else if (discount >= 5 && discount < 10) {
     shipElem.classList.add("mid-risk");
     currentElem.classList.add("mid-risk");
-  } else {
+  } else if (discount >= 10) {
     shipElem.classList.add("high-risk");
     currentElem.classList.add("high-risk");
   }
@@ -54,7 +53,7 @@ function updateRocketPosition() {
   const wrapperHeight = rocketWrapper.offsetHeight;
   let centerX = (containerWidth - wrapperWidth) / 2;
   let centerY = (containerHeight - wrapperHeight) / 2;
-  // Use discount/20 as a factor (0 to 1)
+  // Position is determined by discount fraction (discount/20)
   let t = discount / 20;
   rocketWrapper.style.left = (t * centerX) + "px";
   rocketWrapper.style.bottom = (t * centerY) + "px";
@@ -131,7 +130,6 @@ function updateLeaderboard() {
 }
 
 function showShareOptions() {
-  // For simplicity, we add dummy share buttons/links.
   document.getElementById("share-area").innerHTML =
     '<p>Share your score:</p>' +
     '<button onclick="alert(\'Shared on Twitter!\')">Twitter</button> ' +
@@ -158,24 +156,31 @@ function incrementDailyPlays() {
 
 // -------------------- Game Mechanics --------------------
 
-function startDoublingTimer() {
-  doublingTimer = setInterval(() => {
-    if (!gameActive) return;
-    // Calculate crash probability (risk increases with discount)
-    // Using a simple formula: probability = (discount - 1)/50
-    let crashProb = (discount - 1) / 50;
-    if (Math.random() < crashProb) {
-      crash();
-      return;
-    }
-    // Double the discount (capped at 20%)
-    let newDiscount = discount * 2;
-    if (newDiscount > 20) {
-      newDiscount = 20;
-    }
-    discount = newDiscount;
-    updateUI();
-  }, doublingInterval);
+// New function: increment discount by 0.01 per tick and check explosion chance
+function updateDiscount() {
+  if (!gameActive) return;
+  discount += 0.01;
+  if (discount > 20) discount = 20;
+  
+  // Determine per-tick explosion probability based on current discount:
+  // For discount 1%-5%: overall chance 80% over 400 ticks → per-tick probability ≈ 0.00402
+  // For discount 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
+  // For discount 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
+  let explosionProb = 0;
+  if (discount >= 1 && discount < 5) {
+    explosionProb = 0.00402;
+  } else if (discount >= 5 && discount < 10) {
+    explosionProb = 0.0001667;
+  } else if (discount >= 10 && discount <= 20) {
+    explosionProb = 0.0000202;
+  }
+  
+  if (Math.random() < explosionProb) {
+    crash();
+    return;
+  }
+  
+  updateUI();
 }
 
 function updateGame() {
@@ -184,14 +189,13 @@ function updateGame() {
 }
 
 function startGame() {
-  // Reset discount to initial 1%
-  discount = 1;
+  // Reset discount to 1%
+  discount = 1.00;
   crashed = false;
   gameActive = true;
   updateUI();
   document.getElementById("status").textContent = "Run in progress... Hit Cash Out to lock in your discount!";
   
-  // Enable cash out only if player joined
   if (playerJoined) {
     document.getElementById("cashout").disabled = false;
   } else {
@@ -214,16 +218,15 @@ function startGame() {
   
   // Start UI update interval
   gameInterval = setInterval(updateGame, 50);
-  
-  // Start the doubling (discount update) timer
-  startDoublingTimer();
+  // Start discount update tick
+  tickTimer = setInterval(updateDiscount, tickInterval);
 }
 
 function crash() {
   gameActive = false;
   crashed = true;
   clearInterval(gameInterval);
-  clearInterval(doublingTimer);
+  clearInterval(tickTimer);
   
   // Lose all accumulated discount on crash
   accumulatedDiscount = 0;
@@ -244,7 +247,6 @@ function crash() {
   document.getElementById("cashout").disabled = true;
   document.getElementById("ignite").disabled = true;
   
-  // Update leaderboard (if necessary)
   updateLeaderboard();
   
   setTimeout(startCountdown, 2000);
@@ -254,7 +256,7 @@ function cashOut() {
   if (!gameActive || crashed || !playerJoined) return;
   gameActive = false;
   clearInterval(gameInterval);
-  clearInterval(doublingTimer);
+  clearInterval(tickTimer);
   
   const cashoutSound = document.getElementById("cashout-sound");
   cashoutSound.volume = parseFloat(cashoutVolumeSlider.value);
@@ -269,10 +271,8 @@ function cashOut() {
   document.getElementById("ignite").disabled = true;
   
   accumulatedDiscount += discount;
-  updateAccumulatedDiscount();
+  updateUI();
   updateLeaderboard();
-  
-  // Show social sharing options
   showShareOptions();
   
   setTimeout(startCountdown, 2000);
@@ -290,12 +290,11 @@ function startCountdown() {
     return;
   }
   
-  // Start playing background music immediately
   document.getElementById("bg-music").play();
   
   playerJoined = false;
   const countdownDiv = document.getElementById("countdown");
-  let duration = 5; // Countdown duration: 5 seconds
+  let duration = 5; // 5-second countdown
   countdownDiv.style.display = "block";
   countdownDiv.textContent = duration;
   document.getElementById("ignite").disabled = false;
@@ -307,7 +306,7 @@ function startCountdown() {
     } else {
       clearInterval(countdownInterval);
       countdownDiv.style.display = "none";
-      // If the player did not hit "Blast off" during countdown, start run automatically (with no discount secured)
+      // If the player did not press "Blast off" during countdown, start run automatically
       if (!playerJoined) {
         document.getElementById("cashout").disabled = true;
         startRun();
@@ -316,7 +315,7 @@ function startCountdown() {
   }, 1000);
   firstRun = false;
   
-  // Increment daily plays since a run is about to start
+  // Increment daily plays as a run is starting
   incrementDailyPlays();
 }
 
@@ -336,7 +335,6 @@ document.getElementById("ignite").addEventListener("click", () => {
   clearInterval(countdownInterval);
   document.getElementById("countdown").style.display = "none";
   playerJoined = true;
-  // Unlock cash out since the player pressed Blast off
   document.getElementById("cashout").disabled = false;
   startRun();
 });
@@ -352,15 +350,4 @@ bgVolumeSlider.addEventListener("input", () => {
 sfxVolumeSlider.addEventListener("input", () => {
   const explosionSound = document.getElementById("explosion-sound");
   const rocketSound = document.getElementById("rocket-sound");
-  explosionSound.volume = parseFloat(sfxVolumeSlider.value);
-  rocketSound.volume = parseFloat(sfxVolumeSlider.value);
-});
-
-cashoutVolumeSlider.addEventListener("input", () => {
-  const cashoutSound = document.getElementById("cashout-sound");
-  cashoutSound.volume = parseFloat(cashoutVolumeSlider.value);
-});
-
-function updateAccumulatedDiscount() {
-  document.getElementById("discount-display").textContent = "Total Discount: " + accumulatedDiscount.toFixed(2) + "%";
-}
+  explosionSound.volume = parseFloat(sfxVol
