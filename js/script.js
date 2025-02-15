@@ -53,7 +53,7 @@ function updateRocketPosition() {
   const wrapperHeight = rocketWrapper.offsetHeight;
   let centerX = (containerWidth - wrapperWidth) / 2;
   let centerY = (containerHeight - wrapperHeight) / 2;
-  // Position is determined by discount fraction (discount/20)
+  // Position determined by fraction discount/20
   let t = discount / 20;
   rocketWrapper.style.left = (t * centerX) + "px";
   rocketWrapper.style.bottom = (t * centerY) + "px";
@@ -63,7 +63,6 @@ function updateBottomScale() {
   const bottomScale = document.getElementById("bottom-scale");
   bottomScale.innerHTML = "";
   const containerWidth = document.getElementById("rocket-container").offsetWidth;
-  // Fixed ticks: 0%, 5%, 10%, 15%, 20%
   const ticks = [0, 5, 10, 15, 20];
   ticks.forEach(tickValue => {
     let normalizedTick = tickValue / 20;
@@ -156,16 +155,16 @@ function incrementDailyPlays() {
 
 // -------------------- Game Mechanics --------------------
 
-// New function: increment discount by 0.01 per tick and check explosion chance
+// Update discount by 0.01% per tick; check for explosion chance based on current discount range
 function updateDiscount() {
   if (!gameActive) return;
   discount += 0.01;
   if (discount > 20) discount = 20;
   
-  // Determine per-tick explosion probability based on current discount:
-  // For discount 1%-5%: overall chance 80% over 400 ticks → per-tick probability ≈ 0.00402
-  // For discount 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
-  // For discount 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
+  // Determine per-tick explosion probability:
+  // Between 1%-5%: chance 80% overall ~ per-tick prob ≈ 0.00402
+  // Between 5%-10%: chance 8% overall ~ per-tick prob ≈ 0.0001667
+  // Between 10%-20%: chance 2% overall ~ per-tick prob ≈ 0.0000202
   let explosionProb = 0;
   if (discount >= 1 && discount < 5) {
     explosionProb = 0.00402;
@@ -205,7 +204,6 @@ function startGame() {
   document.getElementById("rocket-wrapper").style.display = "block";
   document.getElementById("explosion").style.display = "none";
   
-  // Set volumes from sliders
   const bgMusic = document.getElementById("bg-music");
   const explosionSound = document.getElementById("explosion-sound");
   const rocketSound = document.getElementById("rocket-sound");
@@ -216,9 +214,7 @@ function startGame() {
   bgMusic.play();
   rocketSound.play();
   
-  // Start UI update interval
   gameInterval = setInterval(updateGame, 50);
-  // Start discount update tick
   tickTimer = setInterval(updateDiscount, tickInterval);
 }
 
@@ -306,16 +302,18 @@ function startCountdown() {
     } else {
       clearInterval(countdownInterval);
       countdownDiv.style.display = "none";
-      // If the player did not press "Blast off" during countdown, start run automatically
+      // If the player did not press "Blast off" during the countdown, cancel the run
       if (!playerJoined) {
-        document.getElementById("cashout").disabled = true;
+        document.getElementById("status").textContent = "Run cancelled. Try again.";
+        setTimeout(startCountdown, 2000);
+      } else {
         startRun();
       }
     }
   }, 1000);
   firstRun = false;
   
-  // Increment daily plays as a run is starting
+  // Increment daily plays as a run is about to start
   incrementDailyPlays();
 }
 
@@ -350,4 +348,16 @@ bgVolumeSlider.addEventListener("input", () => {
 sfxVolumeSlider.addEventListener("input", () => {
   const explosionSound = document.getElementById("explosion-sound");
   const rocketSound = document.getElementById("rocket-sound");
-  explosionSound.volume = parseFloat(sfxVol
+  explosionSound.volume = parseFloat(sfxVolumeSlider.value);
+  rocketSound.volume = parseFloat(sfxVolumeSlider.value);
+});
+
+cashoutVolumeSlider.addEventListener("input", () => {
+  const cashoutSound = document.getElementById("cashout-sound");
+  cashoutSound.volume = parseFloat(cashoutVolumeSlider.value);
+});
+
+// Reusable update for accumulated discount display
+function updateAccumulatedDiscount() {
+  document.getElementById("discount-display").textContent = "Total Discount: " + accumulatedDiscount.toFixed(2) + "%";
+}
