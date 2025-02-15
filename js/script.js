@@ -1,16 +1,16 @@
 // Global Variables
-let discount = 0.00;     // Current discount (starts at 0.00%)
-let totalDiscount = 0.00;  // Total accumulated discount
+let discount = 0.00;      // Current discount (starts at 0.00%)
+let totalDiscount = 0.00; // Total accumulated discount
 let gameActive = false;
 let crashed = false;
-let playerJoined = false; // True if player clicks Blast Off during countdown
+let playerJoined = false; // Set to true if "Blast Off" is clicked during countdown
 let countdownInterval;
 let gameInterval;
-const tickInterval = 50; // ms per tick
+const tickInterval = 50;  // ms per tick
 let tickTimer;
 
 // -------------------- Dynamic Scale Function --------------------
-// This maps a percentage (0 to 20) to a fraction (0 to 1) so that the current discount is centered (mapped to 0.5)
+// Maps a value (0–20) to a fraction (0–1) so that the current discount is centered (0.5)
 function dynamicScale(x) {
   if (discount <= 0) return x / 20;
   if (x <= discount) {
@@ -28,7 +28,7 @@ function updateDiscountDisplay() {
   shipElem.textContent = discount.toFixed(2) + "% Discount";
   currentElem.textContent = "Current: " + discount.toFixed(2) + "%";
   
-  // Apply risk colors based on discount
+  // Apply risk color classes
   shipElem.classList.remove("low-risk", "mid-risk", "high-risk");
   currentElem.classList.remove("low-risk", "mid-risk", "high-risk");
   if (discount < 5) {
@@ -50,9 +50,9 @@ function updateRocketPosition() {
   const containerHeight = container.offsetHeight;
   const wrapperWidth = rocketWrapper.offsetWidth;
   const wrapperHeight = rocketWrapper.offsetHeight;
-  // Rocket should always remain horizontally centered.
+  // Horizontal: keep centered
   const centerX = (containerWidth - wrapperWidth) / 2;
-  // For vertical position, map discount from 0% to 20% to 0 to (containerHeight - wrapperHeight)
+  // Vertical: map discount (0 to 20) to bottom position (0 to maxBottom)
   const maxBottom = containerHeight - wrapperHeight;
   let t = discount / 20;
   rocketWrapper.style.left = centerX + "px";
@@ -67,11 +67,11 @@ function updateBottomScale() {
   ticks.forEach(val => {
     let frac = dynamicScale(val);
     let pos = frac * containerWidth;
-    const tick = document.createElement("div");
+    let tick = document.createElement("div");
     tick.className = "tick";
     tick.style.left = pos + "px";
     bottomScale.appendChild(tick);
-    const label = document.createElement("div");
+    let label = document.createElement("div");
     label.className = "tick-label";
     label.textContent = val + "%";
     label.style.left = (pos - 10) + "px";
@@ -93,11 +93,11 @@ function updateVerticalTicker() {
   ticks.forEach(val => {
     let frac = dynamicScale(val);
     let pos = (1 - frac) * containerHeight;
-    const tick = document.createElement("div");
+    let tick = document.createElement("div");
     tick.className = "v-tick";
     tick.style.top = pos + "px";
     verticalTicker.appendChild(tick);
-    const label = document.createElement("div");
+    let label = document.createElement("div");
     label.className = "v-tick-label";
     label.textContent = val + "%";
     label.style.top = (pos - 5) + "px";
@@ -140,16 +140,16 @@ function updateAccumulatedDisplay() {
 
 // -------------------- Game Mechanics --------------------
 
-// Increase discount by 0.01% per tick and check for explosion
+// Every tick, increase discount by 0.01% and check for explosion
 function updateDiscount() {
   if (!gameActive) return;
   discount += 0.01;
   if (discount > 20) discount = 20;
   
-  // Explosion probability per tick based on ranges:
-  // 0% - 5%: ~80% overall chance over ~500 ticks → approx 0.00402 per tick
-  // 5% - 10%: ~10% overall chance over ~500 ticks → approx 0.0002 per tick
-  // 10% - 20%: ~2% overall chance over ~1000 ticks → approx 0.00002 per tick
+  // Set explosion probability based on discount range:
+  // For 0%-5%: ~80% chance over ~500 ticks: ~0.00402 per tick
+  // For 5%-10%: ~10% chance over ~500 ticks: ~0.0002 per tick
+  // For 10%-20%: ~2% chance over ~1000 ticks: ~0.00002 per tick
   let explosionProb = 0;
   if (discount < 5) {
     explosionProb = 0.00402;
@@ -173,7 +173,7 @@ function updateGame() {
 }
 
 function startGame() {
-  // Start new round: rocket starts at 0.00%
+  // Start a new round: reset current discount to 0.00%
   discount = 0.00;
   crashed = false;
   gameActive = true;
@@ -185,16 +185,19 @@ function startGame() {
   document.getElementById("cashout").disabled = playerJoined ? false : true;
   
   // Reset rocket & explosion elements
-  document.getElementById("rocket-wrapper").style.display = "block";
-  document.getElementById("explosion").style.display = "none";
-  document.getElementById("explosion").classList.remove("explode");
+  const rocketWrapper = document.getElementById("rocket-wrapper");
+  rocketWrapper.style.display = "block";
+  const explosionElem = document.getElementById("explosion");
+  explosionElem.style.display = "none";
+  explosionElem.classList.remove("explode");
   
+  // Start sounds
   const bgMusic = document.getElementById("bg-music");
   const explosionSound = document.getElementById("explosion-sound");
   const rocketSound = document.getElementById("rocket-sound");
-  bgMusic.volume = parseFloat(bgVolumeSlider.value);
-  explosionSound.volume = parseFloat(sfxVolumeSlider.value);
-  rocketSound.volume = parseFloat(sfxVolumeSlider.value);
+  bgMusic.volume = parseFloat(document.getElementById("bg-volume").value);
+  explosionSound.volume = parseFloat(document.getElementById("sfx-volume").value);
+  rocketSound.volume = parseFloat(document.getElementById("sfx-volume").value);
   
   bgMusic.play();
   rocketSound.play();
@@ -209,7 +212,7 @@ function crash() {
   clearInterval(gameInterval);
   clearInterval(tickTimer);
   
-  // If Blast Off was clicked, reset both current and total discount
+  // If player had clicked Blast Off, then lose both current and total discount
   if (playerJoined) {
     discount = 0;
     totalDiscount = 0;
@@ -237,14 +240,13 @@ function crash() {
 }
 
 function cashOut() {
-  // Cash out only works if Blast Off was clicked during countdown
   if (!gameActive || crashed || !playerJoined) return;
   gameActive = false;
   clearInterval(gameInterval);
   clearInterval(tickTimer);
   
   const cashoutSound = document.getElementById("cashout-sound");
-  cashoutSound.volume = parseFloat(cashoutVolumeSlider.value);
+  cashoutSound.volume = parseFloat(document.getElementById("cashout-volume").value);
   cashoutSound.play();
   
   const rocketSound = document.getElementById("rocket-sound");
@@ -255,7 +257,7 @@ function cashOut() {
   document.getElementById("cashout").disabled = true;
   document.getElementById("ignite").disabled = true;
   
-  // If Blast Off was clicked, add current discount to total discount
+  // Only if Blast Off was clicked do we add the current discount to total reward
   totalDiscount += discount;
   updateAccumulatedDisplay();
   updateUI();
@@ -269,7 +271,6 @@ function cashOut() {
 
 function startCountdown() {
   document.getElementById("bg-music").play();
-  
   playerJoined = false;
   const countdownDiv = document.getElementById("countdown");
   let duration = 5;
@@ -284,11 +285,10 @@ function startCountdown() {
     } else {
       clearInterval(countdownInterval);
       countdownDiv.style.display = "none";
-      // At end of countdown, start the round.
+      // At end of countdown, start round regardless.
       startRun();
     }
   }, 1000);
-  firstRun = false;
 }
 
 function startRun() {
@@ -313,17 +313,17 @@ document.getElementById("ignite").addEventListener("click", () => {
 
 document.getElementById("cashout").addEventListener("click", cashOut);
 
-bgVolumeSlider.addEventListener("input", () => {
-  document.getElementById("bg-music").volume = parseFloat(bgVolumeSlider.value);
+document.getElementById("bg-volume").addEventListener("input", () => {
+  document.getElementById("bg-music").volume = parseFloat(document.getElementById("bg-volume").value);
 });
 
-sfxVolumeSlider.addEventListener("input", () => {
-  document.getElementById("explosion-sound").volume = parseFloat(sfxVolumeSlider.value);
-  document.getElementById("rocket-sound").volume = parseFloat(sfxVolumeSlider.value);
+document.getElementById("sfx-volume").addEventListener("input", () => {
+  document.getElementById("explosion-sound").volume = parseFloat(document.getElementById("sfx-volume").value);
+  document.getElementById("rocket-sound").volume = parseFloat(document.getElementById("sfx-volume").value);
 });
 
-cashoutVolumeSlider.addEventListener("input", () => {
-  document.getElementById("cashout-sound").volume = parseFloat(cashoutVolumeSlider.value);
+document.getElementById("cashout-volume").addEventListener("input", () => {
+  document.getElementById("cashout-sound").volume = parseFloat(document.getElementById("cashout-volume").value);
 });
 
 function updateAccumulatedDisplay() {
