@@ -13,10 +13,26 @@ let firstRun = true; // First run: 5 sec; subsequent: 5 sec
 // Daily limit settings
 const dailyLimit = 5;
 
+// Admin mode variable
+let adminMode = false;
+
 // Volume control elements
 const bgVolumeSlider = document.getElementById("bg-volume");
 const sfxVolumeSlider = document.getElementById("sfx-volume");
 const cashoutVolumeSlider = document.getElementById("cashout-volume");
+
+// -------------------- Admin Login --------------------
+document.getElementById("admin-login-button").addEventListener("click", () => {
+  const passwordInput = document.getElementById("admin-password");
+  const messageSpan = document.getElementById("admin-message");
+  if (passwordInput.value === "Jordan905!") {
+    adminMode = true;
+    messageSpan.textContent = "Admin mode activated";
+    passwordInput.disabled = true;
+  } else {
+    messageSpan.textContent = "Incorrect password";
+  }
+});
 
 // -------------------- Utility Functions --------------------
 
@@ -136,6 +152,10 @@ function showShareOptions() {
 }
 
 function checkDailyLimit() {
+  // If in admin mode, no limit is applied.
+  if (adminMode) {
+    return 0;
+  }
   const today = new Date().toISOString().slice(0, 10);
   let lastPlayDate = localStorage.getItem("lastPlayDate");
   let playsToday = parseInt(localStorage.getItem("playsToday")) || 0;
@@ -155,16 +175,16 @@ function incrementDailyPlays() {
 
 // -------------------- Game Mechanics --------------------
 
-// Update discount by 0.01% per tick; check for explosion chance based on current discount range
+// Increase discount by 0.01% per tick and check explosion chance based on current discount range
 function updateDiscount() {
   if (!gameActive) return;
   discount += 0.01;
   if (discount > 20) discount = 20;
   
   // Determine per-tick explosion probability:
-  // Between 1%-5%: chance 80% overall ~ per-tick prob ≈ 0.00402
-  // Between 5%-10%: chance 8% overall ~ per-tick prob ≈ 0.0001667
-  // Between 10%-20%: chance 2% overall ~ per-tick prob ≈ 0.0000202
+  // 1%-5%: overall chance 80% over 400 ticks → per-tick probability ≈ 0.00402
+  // 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
+  // 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
   let explosionProb = 0;
   if (discount >= 1 && discount < 5) {
     explosionProb = 0.00402;
@@ -277,7 +297,7 @@ function cashOut() {
 // -------------------- Countdown & Daily Limit --------------------
 
 function startCountdown() {
-  // Check daily play limit
+  // Check daily play limit (bypass if admin mode)
   let playsToday = checkDailyLimit();
   if (playsToday >= dailyLimit) {
     document.getElementById("status").textContent = "Daily play limit reached. Come back tomorrow!";
@@ -313,7 +333,6 @@ function startCountdown() {
   }, 1000);
   firstRun = false;
   
-  // Increment daily plays as a run is about to start
   incrementDailyPlays();
 }
 
