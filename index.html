@@ -14,11 +14,11 @@
     <!-- Countdown display (initial value is 5) -->
     <div id="countdown">5</div>
     
-    <!-- Rocket Container with background space6.jpg -->
+    <!-- Rocket Container with background (e.g., space image) -->
     <div id="rocket-container">
       <div id="rocket-wrapper">
         <img id="rocket" src="img/rocket4.png" alt="Rocket">
-        <div id="ship-discount">0.00% Discount</div>
+        <div id="ship-discount">1.00% Discount</div>
       </div>
       <img id="explosion" src="img/explosion.png" alt="Explosion">
       <div id="bottom-scale"></div>
@@ -36,14 +36,12 @@
     <!-- Bottom Info Container -->
     <div id="bottom-info">
       <div id="discount-display">Total Discount: 0.00%</div>
-      <div id="current-discount">Current: 0.00%</div>
+      <div id="current-discount">Current: 1.00%</div>
     </div>
     
-    <!-- Game Stats Display -->
-    <div id="stats-display">
-      <h2>Game Stats</h2>
-      <p id="stats-info">Runs: 0 | Cashouts: 0 | Crashes: 0 | Avg Discount: 0%</p>
-    </div>
+    <!-- Leaderboard & Share Area -->
+    <div id="leaderboard"></div>
+    <div id="share-area"></div>
   </div>
 
   <!-- Sound Bar Control Panel (always visible) -->
@@ -52,11 +50,11 @@
     <label for="bg-volume">Background Music:</label>
     <input type="range" id="bg-volume" min="0" max="1" step="0.01" value="0.1">
     <br>
-    <label for="explosion-volume">Explosion Sound:</label>
-    <input type="range" id="explosion-volume" min="0" max="1" step="0.01" value="0.2">
+    <label for="sfx-volume">Sound Effects:</label>
+    <input type="range" id="sfx-volume" min="0" max="1" step="0.01" value="0.2">
     <br>
-    <label for="rocket-volume">Rocket Flight Sound:</label>
-    <input type="range" id="rocket-volume" min="0" max="1" step="0.01" value="0.05">
+    <label for="cashout-volume">Cash Out Sound:</label>
+    <input type="range" id="cashout-volume" min="0" max="1" step="0.01" value="0.2">
   </div>
 
   <!-- Audio Elements -->
