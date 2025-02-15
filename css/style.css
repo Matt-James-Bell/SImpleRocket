@@ -1,53 +1,68 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
 
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Open+Sans', sans-serif;
   background: radial-gradient(ellipse at center, #0a0a0a, #151515, #202020);
   color: #e0e0e0;
   margin: 0;
-  padding: 20px;
+  padding: 30px;
   text-align: center;
 }
 
 h1 {
-  margin-bottom: 20px;
+  font-size: 2em;
   color: #fff;
+  margin-bottom: 20px;
 }
 
-/* Game Container */
+/* Game Container - Bigger */
 #game-container {
-  background: rgba(0,0,0,0.5);
-  border: 2px solid rgba(255,255,255,0.3);
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 400px;
+  background: rgba(0,0,0,0.6);
+  border: 3px solid rgba(255,255,255,0.4);
+  padding: 30px;
+  border-radius: 16px;
+  max-width: 1000px;
   margin: 0 auto;
   position: relative;
 }
 
-/* Rocket Container */
+/* Leaderboard (fixed top-right) */
+#leaderboard {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.8);
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 1.5em;
+  color: #fff;
+}
+
+/* Rocket Container - Bigger */
 #rocket-container {
   position: relative;
   width: 100%;
-  height: 300px;
-  background: url('../img/space6.jpg') no-repeat center;
+  height: 500px;
+  margin-bottom: 20px;
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('../img/space6.jpg') no-repeat center;
   background-size: cover;
-  border-radius: 12px;
+  border: 3px solid rgba(255,255,255,0.4);
+  border-radius: 16px;
   overflow: hidden;
-  margin-bottom: 10px;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
 }
 
-/* Rocket Wrapper */
+/* Rocket Wrapper - moves horizontally from left to center */
 #rocket-wrapper {
   position: absolute;
-  left: 0;           /* Start at left edge */
+  left: 0;  /* Start at left edge */
   bottom: 0;
-  width: 100px;
-  height: 140px;
-  transition: left 0.05s linear, bottom 0.05s linear;
+  width: 150px;
+  height: 200px;
+  transition: left 0.05s linear;
 }
 
-/* Rocket Image */
+/* Rocket Image - scaled up */
 #rocket {
   width: 100%;
 }
@@ -55,31 +70,108 @@ h1 {
 /* Discount Display on Rocket */
 #ship-discount {
   position: absolute;
-  bottom: 100%;
+  bottom: 110%;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 1em;
+  font-size: 1.2em;
   color: #fff;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
 }
 
-/* Status */
-#status {
-  font-size: 1.2em;
-  margin: 10px 0;
+/* Explosion Image */
+#explosion {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 150px;
+  transform: translateX(-50%);
+  display: none;
+  z-index: 4;
+}
+
+/* Dynamic Horizontal Tick Bar */
+#bottom-scale {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  border-top: 2px solid #fff;
+  background: rgba(0,0,0,0.5);
+}
+
+/* Dynamic Vertical Tick Bar */
+#vertical-ticker {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50px;
+  height: 100%;
+  border-left: 2px solid #fff;
+  background: rgba(0,0,0,0.5);
+}
+
+/* Tick Marks & Labels (Horizontal) */
+.tick {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 15px;
+  background: #fff;
+}
+
+.tick-label {
+  position: absolute;
+  bottom: 15px;
+  font-size: 12px;
+  color: #fff;
+}
+
+/* Tick Marker */
+.tick-marker {
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  height: 40px;
+  background: red;
+}
+
+/* Tick Marks & Labels (Vertical) */
+.v-tick {
+  position: absolute;
+  left: 0;
+  width: 10px;
+  height: 2px;
+  background: #fff;
+}
+
+.v-tick-label {
+  position: absolute;
+  left: 12px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.v-tick-marker {
+  position: absolute;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: red;
 }
 
 /* Button Container */
 #button-container {
-  margin: 10px 0;
+  text-align: center;
+  margin: 20px 0;
 }
 
 button {
-  padding: 10px 20px;
-  font-size: 1em;
-  margin: 5px;
+  padding: 15px 30px;
+  font-size: 1.2em;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
+  margin: 10px;
   cursor: pointer;
   transition: 0.3s;
 }
@@ -103,35 +195,60 @@ button:disabled {
 #bottom-info {
   display: flex;
   justify-content: space-between;
-  margin-top: 10px;
-  font-size: 1.2em;
+  align-items: center;
+  margin-top: 20px;
+  font-size: 1.4em;
 }
 
-#current, #total {
+#discount-display, #current-discount {
   background: rgba(0,0,0,0.7);
-  padding: 5px 10px;
-  border-radius: 4px;
-}
-
-/* Leaderboard (fixed in top-right) */
-#leaderboard {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: rgba(0,0,0,0.8);
-  padding: 10px;
+  padding: 10px 15px;
   border-radius: 8px;
-  font-size: 1.2em;
 }
 
-/* Sound Bar (fixed in bottom-right) */
+#current-discount {
+  background: #000;
+  color: #90ee90;
+  border: 2px solid #90ee90;
+  box-shadow: 0 3px 7px rgba(0,0,0,0.5);
+}
+
+#status {
+  font-size: 1.4em;
+  margin: 20px 0;
+  color: #ddd;
+}
+
+/* Sound Bar */
 #sound-bar {
   position: fixed;
   bottom: 20px;
   right: 20px;
   background: #333;
-  padding: 10px;
-  border-radius: 4px;
-  font-size: 0.9em;
+  padding: 15px;
+  border-radius: 8px;
   color: #fff;
+  font-size: 1em;
+}
+
+/* Risk Colors & Pulse */
+.low-risk {
+  color: #90ee90;
+  animation: pulse 1s infinite;
+}
+
+.mid-risk {
+  color: yellow;
+  animation: pulse 1s infinite;
+}
+
+.high-risk {
+  color: red;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
