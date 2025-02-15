@@ -10,29 +10,10 @@ let playerJoined = false;
 let countdownInterval;
 let firstRun = true; // First run: 5 sec; subsequent: 5 sec
 
-// Daily limit settings
-const dailyLimit = 5;
-
-// Admin mode variable
-let adminMode = false;
-
 // Volume control elements
 const bgVolumeSlider = document.getElementById("bg-volume");
 const sfxVolumeSlider = document.getElementById("sfx-volume");
 const cashoutVolumeSlider = document.getElementById("cashout-volume");
-
-// -------------------- Admin Login --------------------
-document.getElementById("admin-login-button").addEventListener("click", () => {
-  const passwordInput = document.getElementById("admin-password");
-  const messageSpan = document.getElementById("admin-message");
-  if (passwordInput.value === "Jordan905!") {
-    adminMode = true;
-    messageSpan.textContent = "Admin mode activated";
-    passwordInput.disabled = true;
-  } else {
-    messageSpan.textContent = "Incorrect password";
-  }
-});
 
 // -------------------- Utility Functions --------------------
 
@@ -151,28 +132,6 @@ function showShareOptions() {
     '<button onclick="alert(\'Shared on Facebook!\')">Facebook</button>';
 }
 
-function checkDailyLimit() {
-  // If in admin mode, no limit is applied.
-  if (adminMode) {
-    return 0;
-  }
-  const today = new Date().toISOString().slice(0, 10);
-  let lastPlayDate = localStorage.getItem("lastPlayDate");
-  let playsToday = parseInt(localStorage.getItem("playsToday")) || 0;
-  if (lastPlayDate !== today) {
-    localStorage.setItem("lastPlayDate", today);
-    localStorage.setItem("playsToday", "0");
-    playsToday = 0;
-  }
-  return playsToday;
-}
-
-function incrementDailyPlays() {
-  let playsToday = checkDailyLimit();
-  playsToday++;
-  localStorage.setItem("playsToday", playsToday.toString());
-}
-
 // -------------------- Game Mechanics --------------------
 
 // Increase discount by 0.01% per tick and check explosion chance based on current discount range
@@ -182,9 +141,9 @@ function updateDiscount() {
   if (discount > 20) discount = 20;
   
   // Determine per-tick explosion probability:
-  // 1%-5%: overall chance 80% over 400 ticks → per-tick probability ≈ 0.00402
-  // 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
-  // 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
+  // For discount 1%-5%: overall chance 80% over 400 ticks → per-tick probability ≈ 0.00402
+  // For discount 5%-10%: overall chance 8% over 500 ticks → per-tick probability ≈ 0.0001667
+  // For discount 10%-20%: overall chance 2% over 1000 ticks → per-tick probability ≈ 0.0000202
   let explosionProb = 0;
   if (discount >= 1 && discount < 5) {
     explosionProb = 0.00402;
@@ -213,8 +172,10 @@ function startGame() {
   crashed = false;
   gameActive = true;
   updateUI();
-  document.getElementById("status").textContent = "Run in progress... Hit Cash Out to lock in your discount!";
+  document.getElementById("status").textContent = "Run in progress... " +
+    (playerJoined ? "Hit Cash Out to lock in your discount!" : "No cash out available.");
   
+  // Enable cash out only if player pressed Blast off
   if (playerJoined) {
     document.getElementById("cashout").disabled = false;
   } else {
@@ -244,7 +205,8 @@ function crash() {
   clearInterval(gameInterval);
   clearInterval(tickTimer);
   
-  // Lose all accumulated discount on crash
+  // Lose current discount and total discount on crash
+  discount = 0;
   accumulatedDiscount = 0;
   
   const rocketSound = document.getElementById("rocket-sound");
@@ -259,7 +221,7 @@ function crash() {
   explosionElem.style.display = "block";
   explosionElem.classList.add("explode");
   
-  document.getElementById("status").textContent = "Run crashed! Total discount lost!";
+  document.getElementById("status").textContent = "Run crashed! Discount lost!";
   document.getElementById("cashout").disabled = true;
   document.getElementById("ignite").disabled = true;
   
@@ -294,18 +256,10 @@ function cashOut() {
   setTimeout(startCountdown, 2000);
 }
 
-// -------------------- Countdown & Daily Limit --------------------
+// -------------------- Countdown --------------------
 
 function startCountdown() {
-  // Check daily play limit (bypass if admin mode)
-  let playsToday = checkDailyLimit();
-  if (playsToday >= dailyLimit) {
-    document.getElementById("status").textContent = "Daily play limit reached. Come back tomorrow!";
-    document.getElementById("ignite").disabled = true;
-    document.getElementById("cashout").disabled = true;
-    return;
-  }
-  
+  // Always start with a 5-second countdown
   document.getElementById("bg-music").play();
   
   playerJoined = false;
@@ -322,18 +276,11 @@ function startCountdown() {
     } else {
       clearInterval(countdownInterval);
       countdownDiv.style.display = "none";
-      // If the player did not press "Blast off" during the countdown, cancel the run
-      if (!playerJoined) {
-        document.getElementById("status").textContent = "Run cancelled. Try again.";
-        setTimeout(startCountdown, 2000);
-      } else {
-        startRun();
-      }
+      // At the end of the countdown, start the run regardless
+      startRun();
     }
   }, 1000);
   firstRun = false;
-  
-  incrementDailyPlays();
 }
 
 function startRun() {
